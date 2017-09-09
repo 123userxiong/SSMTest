@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.3.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+">
+
+    <!--spring包扫描-->
+    <context:component-scan base-package="org.lanqiao" />
+    <!--开启springmvc注释支持-->
+    <mvc:annotation-driven/>
+
+    <!-- 定义跳转的文件的前后缀 ，视图模式配置-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 自动给后面action的方法return的字符串加上前缀和后缀，变成一个可用的url地址 -->
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <!--配置springmvc拦截器-->
+    <mvc:interceptors>
+       <!-- 对所有请求进行拦截-->
+        <bean class="org.lanqiao.interceptor.EncodingInterceptor"/>
+        <!--对/user/*下所有的请求进行拦截-->
+        <mvc:interceptor>
+        <mvc:mapping path="/user/*"/>
+        <bean class="org.lanqiao.interceptor.LoginInterceptor"/>
+    </mvc:interceptor>
+    </mvc:interceptors>
+
+    <bean id="aspectBean" class="org.lanqiao.aop.LogAOP"/>
+    <!--配置切面-->
+    <aop:config>
+        <aop:aspect id="aspect" ref="aspectBean">
+            <aop:pointcut id="logService" expression="execution(* org.lanqiao.service.*.*(..))"/>
+            <aop:before method="somethingBefore" pointcut-ref="logService"/>
+            <aop:after method="somethingAfter" pointcut-ref="logService"/>
+            <aop:around method="somethingAround" pointcut-ref="logService"/>
+        </aop:aspect>
+    </aop:config>
+</beans>

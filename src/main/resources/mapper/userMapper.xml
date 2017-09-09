@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace可以理解成虚拟文件夹-->
+<mapper namespace="org.lanqiao.dao.IUserDao">
+    <!--resultType：返回值类型-->
+    <!--parameterType:传入参数的类型-->
+    <!--查询所有用户-->
+    <select id="getAllUser" resultType="org.lanqiao.bean.User">
+        select * from user
+    </select>
+    <!--删除某个用户-->
+    <delete id="delUserById" parameterType="org.lanqiao.bean.User">
+        delete from user where id=#{id}
+    </delete>
+   <!-- 更新用户-->
+    <update id="updateUserById" parameterType="org.lanqiao.bean.User">
+        update user set name=#{name},age=#{age} where id=#{id}
+    </update>
+   <!-- 根据id查询用户-->
+    <select id="getUserById" parameterType="int" resultType="org.lanqiao.bean.User">
+        select * from User where id=#{id}
+    </select>
+  <!--添加用户信息-->
+    <insert id="addUser" parameterType="org.lanqiao.bean.User">
+        insert into user values(#{id},#{name},#{age})
+    </insert>
+
+    <!--根据条件查询用户-->
+    <!--只要if语句成立，就加上if里边的sql-->
+    <select id="getByCondition" parameterType="org.lanqiao.bean.User" resultType="org.lanqiao.bean.User">
+        select * from user
+        where 1=1
+        <if test="id!=null &amp;&amp; id >0">
+         and   id=#{id}
+        </if>
+        <if test="name!=null &amp;&amp; !&quot;&quot;.equals(name)">
+         and   name like #{name}
+        </if>
+        <if test="age!=null &amp;&amp; age>0">
+            and age=#{age}
+        </if>
+    </select>
+
+    <!--根据条件查询用户-->
+    <!--只要成立一个条件，就执行sql，不在管其他条件-->
+    <select id="findByCondition" parameterType="org.lanqiao.bean.User" resultType="org.lanqiao.bean.User">
+      select * from user where 1=1
+      <choose>
+          <when test="id!=null &amp;&amp; id >0">
+              and  id=#{id}
+          </when>
+          <when test="name!=null &amp;&amp; !&quot;&quot;.equals(name)">
+              and  name like  concat('%',#{name},'%')
+          </when>
+          <when test="age!=null &amp;&amp; age>0">
+              and age=#{age}
+          </when>
+      </choose>
+    </select>
+    
+    <!--根据id和条件更新用户信息-->
+    <update id="updateByCondition" parameterType="org.lanqiao.bean.User" >
+        update user
+        <set>
+            <if test="name!=null &amp;&amp; !&quot;&quot;.equals(name)">
+                name =#{name}
+            </if>
+            <if test="age!=null &amp;&amp; age>0">
+                age=#{age}
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+    
+    <select id="getUserIn" parameterType="org.lanqiao.bean.User">
+        select * from user where id in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>
